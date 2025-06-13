@@ -1,0 +1,55 @@
+name: Tag on package.json version change
+
+on:
+  push:
+    branches:
+      - main  # Change this if your default branch is different
+
+permissions:
+  contents: write  # Needed to push tags using GITHUB_TOKEN
+
+jobs:
+  tag-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for git diff and tagging
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Get previous commit SHA
+        id: prev_commit
+        run: echo "sha=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
+
+      - name: Read old version
+        id: old_version
+        run: |
+          old_version=$(git show ${{ steps.prev_commit.outputs.sha }}:package.json | jq -r '.version')
+          echo "old=$old_version" >> $GITHUB_OUTPUT
+
+      - name: Read new version
+        id: new_version
+        run: |
+          new_version=$(jq -r '.version' package.json)
+          echo "new=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Check if version changed
+        id: version_changed
+        run: |
+          if [ "${{ steps.old_version.outputs.old }}" != "${{ steps.new_version.outputs.new }}" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push Git tag
+        if: steps.version_changed.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "v${{ steps.new_version.outputs.new }}"
+          git push origin "v${{ steps.new_version.outputs.new }}"

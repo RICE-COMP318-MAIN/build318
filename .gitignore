@@ -1,0 +1,19 @@
+# Node.js dependencies
+node_modules/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Editor-specific settings
+vscode/
+idea/
+
+# Environment variables
+env
+
+# Coverage reports
+coverage/
+
+# Live reload trigger file
+src/trigger.ts

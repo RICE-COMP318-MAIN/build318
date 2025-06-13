@@ -1,0 +1,46 @@
+{
+  "name": "build318",
+  "version": "0.7.0",
+  "description": "Build tool for COMP 318 TypeScript projects.",
+  "keywords": [
+    "esbuild",
+    "COMP 318"
+  ],
+  "homepage": "https://github.com/RICE-COMP318-MAIN/build318#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RICE-COMP318-MAIN/build318.git"
+  },
+  "license": "BSD-3-Clause",
+  "author": "Scott Rixner",
+  "bin": {
+    "build318": "dist/build318"
+  },
+  "exports": {
+    ".": "./dist/loadenv.js"
+  },
+  "types": "dist/loadenv.d.ts",
+  "scripts": {
+    "build": "node scripts/build.mts",
+    "check": "tsc && biome check --write",
+    "test": "mocha test/**/*.spec.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.0",
+    "@types/istanbul-lib-instrument": "^1.7.7",
+    "@types/mime": "^3.0.4",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.0.10",
+    "@types/sinon": "^17.0.4",
+    "esbuild": "^0.25.6",
+    "mime": "^4.0.7",
+    "mocha": "^11.7.1",
+    "should": "^13.2.3",
+    "sinon": "^21.0.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "istanbul-lib-instrument": "^6.0.3"
+  }
+}
