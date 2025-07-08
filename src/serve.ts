@@ -166,16 +166,9 @@ export async function serve(
   // Handle server shutdown gracefully.
   process.on("SIGINT", () => {
     console.log("\nShutting down...");
+    assetWatcher?.close();
+    sourceWatcher?.close();
+    sseManager.closeAll();
     server.close(() => process.exit(0));
-  });
-
-  // Close watchers and clients on close and then resolve the returned promise.
-  return new Promise((resolve) => {
-    server.on("close", () => {
-      assetWatcher?.close();
-      sourceWatcher?.close();
-      sseManager.closeAll();
-      resolve();
-    });
   });
 }
