@@ -36,7 +36,6 @@ async function runBuild(): Promise<void> {
         "esbuild",
         "chokidar",
         "istanbul-lib-instrument",
-        "dotenv",
         "node:*",
       ],
     };
