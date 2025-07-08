@@ -15,6 +15,7 @@ const STATUS_NOT_FOUND = 404;
  */
 class SSEManager {
   private clients: http.ServerResponse[] = [];
+  private isClosed = false;
 
   /**
    * Handles an incoming SSE connection and adds the client to the list.
@@ -22,6 +23,12 @@ class SSEManager {
    * @param res - The HTTP response.
    */
   handle(req: http.IncomingMessage, res: http.ServerResponse) {
+    if (this.isClosed) {
+      res.writeHead(STATUS_NOT_FOUND);
+      res.end("Server is closed");
+      return;
+    }
+
     res.writeHead(STATUS_OK, {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
@@ -45,9 +52,10 @@ class SSEManager {
   }
 
   /**
-   * Closes all SSE client connections.
+   * Closes all SSE client connections and stops accepting new ones.
    */
-  closeAll() {
+  close() {
+    this.isClosed = true;
     this.clients.forEach((res) => res.end());
     this.clients = [];
   }
@@ -168,7 +176,7 @@ export async function serve(
     console.log("\nShutting down...");
     assetWatcher?.close();
     sourceWatcher?.close();
-    sseManager.closeAll();
+    sseManager.close();
     server.close(() => process.exit(0));
   });
 }

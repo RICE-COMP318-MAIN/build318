@@ -1491,12 +1491,18 @@ var STATUS_OK = 200;
 var STATUS_NOT_FOUND = 404;
 var SSEManager = class {
   clients = [];
+  isClosed = false;
   /**
    * Handles an incoming SSE connection and adds the client to the list.
    * @param req - The HTTP request.
    * @param res - The HTTP response.
    */
   handle(req, res) {
+    if (this.isClosed) {
+      res.writeHead(STATUS_NOT_FOUND);
+      res.end("Server is closed");
+      return;
+    }
     res.writeHead(STATUS_OK, {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
@@ -1518,9 +1524,10 @@ var SSEManager = class {
     }
   }
   /**
-   * Closes all SSE client connections.
+   * Closes all SSE client connections and stops accepting new ones.
    */
-  closeAll() {
+  close() {
+    this.isClosed = true;
     this.clients.forEach((res) => res.end());
     this.clients = [];
   }
@@ -1594,7 +1601,7 @@ async function serve(root, port, ctx, copyPairs, shouldWatch) {
     console.log("\nShutting down...");
     assetWatcher?.close();
     sourceWatcher?.close();
-    sseManager.closeAll();
+    sseManager.close();
     server.close(() => process.exit(0));
   });
 }
@@ -1649,7 +1656,7 @@ async function builder(options) {
     }
     case "serve": {
       const ctx = await (0, import_esbuild2.context)(esbuildConfig);
-      serve(dist, options.port, ctx, resolvedCopyPairs, options.watch);
+      await serve(dist, options.port, ctx, resolvedCopyPairs, options.watch);
       break;
     }
   }

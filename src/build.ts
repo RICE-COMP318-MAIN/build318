@@ -115,7 +115,7 @@ async function builder(options: Options): Promise<void> {
 
     case "serve": {
       const ctx: BuildContext = await context(esbuildConfig);
-      serve(dist, options.port, ctx, resolvedCopyPairs, options.watch);
+      await serve(dist, options.port, ctx, resolvedCopyPairs, options.watch);
       break;
     }
   }
